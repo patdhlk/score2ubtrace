@@ -106,12 +106,15 @@ jobs:
 
       - name: Build ubTrace artifact
         env:
-          # docs-as-code's extension modules use absolute imports like
-          # `from src.helper_lib import ...`, so the docs-as-code root must
-          # be on PYTHONPATH so `src` resolves as a top-level package. The
-          # extensions dir is ALSO on PYTHONPATH so score's conf.py can
-          # import `score_sphinx_bundle` by its bare name.
-          PYTHONPATH: ${{ github.workspace }}/docs-as-code:${{ github.workspace }}/docs-as-code/src/extensions
+          # PYTHONPATH layers (lowest priority first):
+          # - orchestrator/shims: provides a `python.runfiles` shim that
+          #   re-exports the PyPI `bazel-runfiles` package under the Bazel
+          #   `@rules_python//python/runfiles` namespace docs-as-code uses.
+          # - docs-as-code: so `from src.helper_lib import ...` resolves
+          #   (docs-as-code/src/__init__.py exists; `src` is the package).
+          # - docs-as-code/src/extensions: so score's conf.py can import
+          #   `score_sphinx_bundle` by its bare name.
+          PYTHONPATH: ${{ github.workspace }}/orchestrator/shims:${{ github.workspace }}/docs-as-code:${{ github.workspace }}/docs-as-code/src/extensions
         run: |
           source orchestrator/.venv/bin/activate
           sphinx-build -W -b ubtrace \
