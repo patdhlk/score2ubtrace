@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Test stub for the gh CLI used by list-refs.sh.
+# Returns the contents of MOCK_TAGS as one tag per line when asked for tags.
+# Fails loudly for any other invocation so untested codepaths cannot pass silently.
+set -euo pipefail
+
+case "$*" in
+  *"tags"*)
+    if [[ -z "${MOCK_TAGS:-}" ]]; then
+      exit 0   # empty tag list
+    fi
+    # Word-split MOCK_TAGS on whitespace so each tag becomes its own line.
+    # shellcheck disable=SC2086
+    printf '%s\n' ${MOCK_TAGS}
+    ;;
+  *)
+    echo "gh stub: unmocked call: $*" >&2
+    exit 99
+    ;;
+esac
