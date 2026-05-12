@@ -106,7 +106,12 @@ jobs:
 
       - name: Build ubTrace artifact
         env:
-          PYTHONPATH: ${{ github.workspace }}/docs-as-code/src/extensions
+          # docs-as-code's extension modules use absolute imports like
+          # `from src.helper_lib import ...`, so the docs-as-code root must
+          # be on PYTHONPATH so `src` resolves as a top-level package. The
+          # extensions dir is ALSO on PYTHONPATH so score's conf.py can
+          # import `score_sphinx_bundle` by its bare name.
+          PYTHONPATH: ${{ github.workspace }}/docs-as-code:${{ github.workspace }}/docs-as-code/src/extensions
         run: |
           source orchestrator/.venv/bin/activate
           sphinx-build -W -b ubtrace \
